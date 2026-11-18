@@ -1,0 +1,19 @@
+{
+  "name": "Kiopen · Rust / Linux 学习者",
+  "short_name": "Kiopen",
+  "description": "Kiopen 的个人主页 —— Rust / Linux 学习者，探索桌面生态与系统级开发。",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060912",
+  "theme_color": "#060912",
+  "icons": [
+    {
+      "src": "/avatar.png",
+      "sizes": "420x420",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -4,11 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark light" />
+<meta name="theme-color" id="themeColor" content="#060912" />
+<script>
+  /* 尽早应用主题，避免深色闪屏 */
+  (function () {
+    try {
+      var t = localStorage.getItem('kiopen-theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.style.colorScheme = t;
+    } catch (e) {}
+  })();
+</script>
 <title>Kiopen · Rust / Linux 学习者</title>
 <meta name="description" content="Kiopen 的个人主页 —— Rust / Linux 学习者，探索桌面生态与系统级开发，捣鼓 Pop!_OS 护眼叠加层与校园哨兵系统。" />
 <meta name="author" content="Kiopen" />
 <meta name="keywords" content="Kiopen, Rust, Linux, Pop!_OS, 个人主页, Pozest404" />
 <link rel="canonical" href="https://kiopen.icu/" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="/avatar.png" />
 
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Kiopen · Rust / Linux 学习者" />
@@ -158,6 +172,17 @@
   [data-theme="light"] .theme-btn .sun { display: none; }
   [data-theme="light"] .theme-btn .moon { display: block; }
 
+  /* 移动端菜单按钮 */
+  .nav-toggle {
+    display: none; width: 38px; height: 38px; flex: none; place-items: center;
+    border-radius: 50%; border: 1px solid var(--border); background: var(--card);
+    color: var(--text); cursor: pointer;
+    transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  }
+  .nav-toggle:hover { border-color: var(--border-strong); }
+  .nav-toggle svg { width: 18px; height: 18px; }
+  [data-theme="light"] .nav-toggle { color: #0f172a; }
+
   /* ===== 布局容器 ===== */
   .wrap { position: relative; z-index: 2; width: min(var(--maxw), calc(100vw - 36px)); margin: 0 auto; }
   main { position: relative; z-index: 2; }
@@ -189,6 +214,7 @@
     opacity: 0; transition: opacity 0.35s ease;
   }
   .hero-card:hover::before { opacity: 1; }
+  .hero-card.tilting { transition: none; }
 
   .avatar { position: relative; width: 112px; height: 112px; margin: 0 auto 22px; isolation: isolate; }
   .avatar-halo {
@@ -419,7 +445,18 @@
   /* ===== 响应式 ===== */
   @media (max-width: 720px) {
     .nav { top: 10px; padding: 8px 10px 8px 12px; }
-    .nav-links { display: none; }
+    .nav-links {
+      display: none;
+      position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+      flex-direction: column; align-items: stretch; gap: 2px; padding: 10px;
+      border-radius: 22px; background: var(--nav-bg); border: 1px solid var(--border);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      backdrop-filter: blur(18px) saturate(150%);
+      box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.7);
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 11px 14px; font-size: 14px; }
+    .nav-toggle { display: grid; }
     .hero { padding: 110px 0 50px; }
     .hero-card { padding: 36px 22px 32px; border-radius: 26px; }
     .section { padding: 70px 0; }
@@ -459,12 +496,17 @@
       <span class="brand-dot">K</span>
       <span>Kiopen</span>
     </a>
-    <nav class="nav-links" aria-label="页面导航">
+    <nav class="nav-links" id="navLinks" aria-label="页面导航">
       <a href="#about" class="active">关于</a>
       <a href="#projects">项目</a>
       <a href="#stats">数据</a>
       <a href="#contact">联系</a>
     </nav>
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="打开导航菜单" aria-expanded="false" aria-controls="navLinks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16"></path>
+      </svg>
+    </button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="切换深浅色">
       <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
         <circle cx="12" cy="12" r="4"></circle>
@@ -604,24 +646,24 @@
         <div class="section-head reveal">
           <p class="eyebrow">By The Numbers</p>
           <h2>数据一览</h2>
-          <p>数据来自 GitHub / Gitee 公开接口，每小时更新一次缓存。</p>
+          <p>数据来自 GitHub / Gitee 公开接口，每小时同步一次。</p>
         </div>
 
         <div class="stats-grid">
           <div class="stat-card reveal" style="--d: 0.05s">
-            <b id="statRepos" data-target="0">—</b>
+            <b id="statRepos">5</b>
             <small>公开仓库</small>
           </div>
           <div class="stat-card reveal" style="--d: 0.12s">
-            <b id="statFollowers" data-target="0">—</b>
+            <b id="statFollowers">0</b>
             <small>关注者</small>
           </div>
           <div class="stat-card reveal" style="--d: 0.19s">
-            <b id="statProjects" data-target="3">3</b>
+            <b id="statProjects">3</b>
             <small>精选项目</small>
           </div>
         </div>
-        <p class="stats-note" id="statsNote">正在同步实时数据…</p>
+        <p class="stats-note" id="statsNote">数据来自 GitHub / Gitee 公开接口，浏览器本地缓存 1 小时</p>
       </div>
     </section>
 
@@ -679,7 +721,11 @@
         else if (window.matchMedia('(prefers-color-scheme: light)').matches) root.setAttribute('data-theme', 'light');
       } catch (e) {}
       function syncThemeLabel() {
-        themeBtn.setAttribute('aria-label', root.getAttribute('data-theme') === 'light' ? '切换到深色模式' : '切换到浅色模式');
+        var light = root.getAttribute('data-theme') === 'light';
+        themeBtn.setAttribute('aria-label', light ? '切换到深色模式' : '切换到浅色模式');
+        root.style.colorScheme = light ? 'light' : 'dark';
+        var metaColor = document.getElementById('themeColor');
+        if (metaColor) metaColor.setAttribute('content', light ? '#eef2ff' : '#060912');
       }
       syncThemeLabel();
       themeBtn.addEventListener('click', function () {
@@ -688,6 +734,27 @@
         try { localStorage.setItem('kiopen-theme', next); } catch (e) {}
         syncThemeLabel();
       });
+
+      /* ===== 移动端导航 ===== */
+      (function () {
+        var btn = document.getElementById('navToggle');
+        var links = document.getElementById('navLinks');
+        if (!btn || !links) return;
+        function setOpen(open) {
+          links.classList.toggle('open', open);
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          btn.setAttribute('aria-label', open ? '关闭导航菜单' : '打开导航菜单');
+        }
+        btn.addEventListener('click', function () {
+          setOpen(!links.classList.contains('open'));
+        });
+        links.addEventListener('click', function (e) {
+          if (e.target.tagName === 'A') setOpen(false);
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') setOpen(false);
+        });
+      })();
 
       /* ===== 打字机 ===== */
       (function () {
@@ -771,7 +838,11 @@
         }
         init();
         draw();
-        window.addEventListener('resize', function () { init(); if (reduce) draw(); });
+        var resizeTimer = 0;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function () { init(); if (reduce) draw(); }, 150);
+        });
         document.addEventListener('visibilitychange', function () {
           running = !document.hidden;
           if (running) { requestAnimationFrame(draw); }
@@ -784,6 +855,7 @@
         if (!card || reduce) return;
         if (window.matchMedia('(pointer: coarse)').matches) return;
         var max = 5;
+        card.addEventListener('pointerenter', function () { card.classList.add('tilting'); });
         card.addEventListener('pointermove', function (e) {
           var r = card.getBoundingClientRect();
           var px = (e.clientX - r.left) / r.width;
@@ -793,6 +865,7 @@
           card.style.transform = 'rotateX(' + ((0.5 - py) * max * 2).toFixed(2) + 'deg) rotateY(' + ((px - 0.5) * max * 2).toFixed(2) + 'deg)';
         });
         card.addEventListener('pointerleave', function () {
+          card.classList.remove('tilting');
           card.style.transform = 'rotateX(0) rotateY(0)';
           card.style.setProperty('--mx', '50%');
           card.style.setProperty('--my', '0%');
@@ -888,7 +961,7 @@
           animate(reposEl, data.repos);
           animate(followersEl, data.followers);
           if (projectsEl) projectsEl.textContent = String(data.projects || 3);
-          if (note) note.textContent = cached ? '数据来自 1 小时内的缓存' : '实时数据 · 每小时自动缓存';
+          if (note) note.textContent = cached ? '数据来自浏览器本地缓存（1 小时内有效）' : '数据来自 GitHub / Gitee 公开接口，浏览器本地缓存 1 小时';
         }
 
         try {
@@ -922,7 +995,7 @@
           var repos = ghRepos + gtRepos;
           var followers = ghFollowers + gtFollowers;
           if (!repos && !followers) {
-            if (note) note.textContent = '实时数据暂不可用，稍后自动重试';
+            if (note) note.textContent = '实时数据暂不可用，当前显示缓存数值';
             return;
           }
           var data = { repos: repos, followers: followers, projects: 3 };
