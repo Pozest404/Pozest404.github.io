@@ -522,7 +522,8 @@
     .hero { padding: 110px 0 50px; }
     .hero-card { padding: 36px 22px 32px; border-radius: 26px; }
     .section { padding: 70px 0; }
-    .stats-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid .stat-card:last-child:nth-child(odd) { grid-column: span 2; }
     .stat-card { padding: 22px 18px; }
     .contact-card { padding: 30px 20px; }
   }
