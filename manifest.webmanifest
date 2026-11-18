@@ -11,7 +11,7 @@
   "icons": [
     {
       "src": "/avatar.png",
-      "sizes": "420x420",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }
