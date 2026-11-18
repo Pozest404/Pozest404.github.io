@@ -183,6 +183,25 @@
   .nav-toggle svg { width: 18px; height: 18px; }
   [data-theme="light"] .nav-toggle { color: #0f172a; }
 
+  /* 滚动进度条 */
+  .progress {
+    position: fixed; top: 0; left: 0; z-index: 60;
+    width: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+    box-shadow: 0 0 12px rgba(124, 92, 255, 0.85);
+  }
+
+  .nav.scrolled {
+    box-shadow: 0 18px 44px -24px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  }
+
+  /* 背景细颗粒，让渐变更耐看 */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
   /* ===== 布局容器 ===== */
   .wrap { position: relative; z-index: 2; width: min(var(--maxw), calc(100vw - 36px)); margin: 0 auto; }
   main { position: relative; z-index: 2; }
@@ -190,6 +209,7 @@
 
   /* ===== Hero ===== */
   .hero {
+    position: relative;
     min-height: 100vh; min-height: 100svh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 130px 0 70px;
@@ -271,6 +291,7 @@
 
   .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
   .btn {
+    position: relative; overflow: hidden;
     display: inline-flex; align-items: center; gap: 8px;
     padding: 11px 22px; border-radius: 999px; font-size: 14px; font-weight: 600;
     text-decoration: none; cursor: pointer; border: 1px solid transparent;
@@ -282,6 +303,12 @@
     box-shadow: 0 16px 34px -14px rgba(124, 92, 255, 0.85);
   }
   .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 22px 40px -14px rgba(124, 92, 255, 0.95); }
+  .btn::after {
+    content: ""; position: absolute; top: 0; left: -130%; width: 60%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+    transform: skewX(-18deg); transition: left 0.6s ease; pointer-events: none;
+  }
+  .btn:hover::after { left: 140%; }
   .btn-ghost { color: var(--text); background: var(--card); border-color: var(--border); }
   .btn-ghost:hover { transform: translateY(-3px); background: var(--card-strong); border-color: var(--border-strong); }
 
@@ -294,10 +321,35 @@
   .socials a:hover { transform: translateY(-3px); color: var(--text); background: var(--card-strong); border-color: var(--border-strong); }
   .socials a svg { width: 18px; height: 18px; }
 
+  .scroll-hint {
+    position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+    display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+    color: var(--muted); background: var(--card); border: 1px solid var(--border);
+    transition: color 0.22s ease, border-color 0.22s ease;
+  }
+  .scroll-hint:hover { color: var(--text); border-color: var(--border-strong); }
+  .scroll-hint svg { width: 16px; height: 16px; animation: nudge 1.9s ease-in-out infinite; }
+  @keyframes nudge { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(3px); } }
+  @media (max-width: 720px) { .scroll-hint { display: none; } }
+
   /* ===== 通用 section ===== */
-  .section { padding: 92px 0; }
+  .section { position: relative; padding: 92px 0; }
+  .section + .section::before {
+    content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: min(920px, calc(100% - 48px)); height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
   .section-head { text-align: center; max-width: 620px; margin: 0 auto 44px; }
-  .section-head h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; letter-spacing: 0.3px; margin-bottom: 10px; }
+  .section-head h2 {
+    position: relative; padding-bottom: 14px;
+    font-size: clamp(26px, 4vw, 36px); font-weight: 800; letter-spacing: 0.3px; margin-bottom: 10px;
+    text-wrap: balance;
+  }
+  .section-head h2::after {
+    content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+    width: 46px; height: 3px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  }
   .section-head p { color: var(--muted); font-size: 14.5px; }
 
   /* ===== 项目卡片 ===== */
@@ -314,9 +366,9 @@
     overflow: hidden;
   }
   .project::after {
-    content: ""; position: absolute; inset: auto -40% -60% auto; width: 220px; height: 220px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(124, 92, 255, 0.34), transparent 68%);
-    filter: blur(20px); opacity: 0; transition: opacity 0.35s ease; pointer-events: none;
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: radial-gradient(340px circle at var(--px, 50%) var(--py, 0%), rgba(124, 92, 255, 0.26), transparent 62%);
+    opacity: 0; transition: opacity 0.35s ease; pointer-events: none;
   }
   .project:hover { transform: translateY(-6px); border-color: var(--border-strong); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8); }
   .project:hover::after { opacity: 1; }
@@ -353,12 +405,18 @@
   /* ===== 数据统计 ===== */
   .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .stat-card {
+    position: relative; overflow: hidden;
     padding: 30px 18px; text-align: center; border-radius: var(--radius);
     background: var(--card); border: 1px solid var(--border);
     -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
     transition: transform 0.25s ease, border-color 0.25s ease;
   }
   .stat-card:hover { transform: translateY(-4px); border-color: var(--border-strong); }
+  .stat-card::before {
+    content: ""; position: absolute; inset: 0 0 auto; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+  }
+  [data-theme="light"] .stat-card::before { background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.16), transparent); }
   .stat-card b {
     display: block; font-size: clamp(30px, 5vw, 42px); line-height: 1.1; font-weight: 800;
     background: linear-gradient(120deg, #a5b4fc, #67e8f9);
@@ -403,6 +461,10 @@
     position: relative; z-index: 2;
     padding: 36px 18px 44px; text-align: center;
     font-size: 12px; letter-spacing: 0.5px; color: var(--muted); opacity: 0.85;
+  }
+  footer::before {
+    content: ""; display: block; width: min(920px, 100%); height: 1px; margin: 0 auto 26px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
   }
   footer .heart { color: var(--accent-3); }
 
@@ -483,6 +545,7 @@
 </head>
 <body>
   <a class="skip" href="#main">跳到主要内容</a>
+  <div class="progress" id="progress" aria-hidden="true"></div>
 
   <div class="aurora" aria-hidden="true">
     <span class="blob b1"></span>
@@ -571,9 +634,10 @@
           </div>
         </div>
       </div>
+      <a class="scroll-hint" href="#projects" aria-label="向下查看项目">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"></path></svg>
+      </a>
     </section>
-
-    <!-- 项目 -->
     <section class="section" id="projects">
       <div class="wrap">
         <div class="section-head reveal">
@@ -906,6 +970,34 @@
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();
         btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+      })();
+
+      /* ===== 滚动进度与导航状态 ===== */
+      (function () {
+        var bar = document.getElementById('progress');
+        var nav = document.querySelector('.nav');
+        function update() {
+          if (bar) {
+            var max = document.documentElement.scrollHeight - window.innerHeight;
+            bar.style.width = (max > 0 ? Math.min(window.scrollY / max, 1) * 100 : 0).toFixed(2) + '%';
+          }
+          if (nav) nav.classList.toggle('scrolled', window.scrollY > 24);
+        }
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        update();
+      })();
+
+      /* ===== 卡片跟随光斑 ===== */
+      (function () {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
+        document.querySelectorAll('.project').forEach(function (card) {
+          card.addEventListener('pointermove', function (e) {
+            var r = card.getBoundingClientRect();
+            card.style.setProperty('--px', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+            card.style.setProperty('--py', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+          });
+        });
       })();
 
       /* ===== 复制邮箱 ===== */
